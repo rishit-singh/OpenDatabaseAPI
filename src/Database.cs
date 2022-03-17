@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using OpenDatabase.Logs;
 using OpenDatabase.Json;
 
-namespace OpenDatabase.Database
+namespace OpenDatabase
 {
 	///<summary>
 	///	Stores the Database configuration to be used by the SQL server.
@@ -260,7 +260,14 @@ namespace OpenDatabase.Database
 		/// <returns> SqlConnection instance storing the connection value. </returns>
 		public static SqlConnection Connect()
 		{
-			Database.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
+			try
+			{
+				Database.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
+			}
+			catch (Exception e)
+			{
+				Logger.Log($"SQL Sever connection error: {e.Message}.");
+			}
 		
 			return Database.DefaultSqlConnection;			
 		}
@@ -278,7 +285,7 @@ namespace OpenDatabase.Database
 			
 			command.ExecuteNonQuery();
 
-			//	Database.DefaultSqlConnection.Close();			
+			Database.DefaultSqlConnection.Close();
 
 			return true;
 		}
@@ -405,4 +412,3 @@ namespace OpenDatabase.Database
 		} 
 	}
 }
-

@@ -1,30 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "/media/rishit/HDD0/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj": {}
+    "/home/rishit/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj": {}
   },
   "projects": {
-    "/media/rishit/HDD0/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj": {
+    "/home/rishit/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/media/rishit/HDD0/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj",
+        "projectUniqueName": "/home/rishit/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj",
         "projectName": "OpenDatabaseAPI",
-        "projectPath": "/media/rishit/HDD0/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj",
+        "projectPath": "/home/rishit/src/repos/OpenDatabaseAPI/OpenDatabaseAPI.csproj",
         "packagesPath": "/home/rishit/.nuget/packages/",
-        "outputPath": "/media/rishit/HDD0/src/repos/OpenDatabaseAPI/obj/",
+        "outputPath": "/home/rishit/src/repos/OpenDatabaseAPI/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/rishit/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net5.0"
+          "net6.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net5.0": {
-            "targetAlias": "net5.0",
+          "net6.0": {
+            "targetAlias": "net6.0",
             "projectReferences": {}
           }
         },
@@ -35,8 +35,8 @@
         }
       },
       "frameworks": {
-        "net5.0": {
-          "targetAlias": "net5.0",
+        "net6.0": {
+          "targetAlias": "net6.0",
           "dependencies": {
             "Newtonsoft.Json": {
               "target": "Package",
@@ -57,12 +57,18 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.2, 6.0.2]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.301/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.102/RuntimeIdentifierGraph.json"
         }
       }
     }

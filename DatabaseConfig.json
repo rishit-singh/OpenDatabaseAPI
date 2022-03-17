@@ -1,0 +1,7 @@
+{
+	"HostName": "localhost",
+	"DatabaseName": "testdb",
+	"UserID": "SA",
+	"Password": "tecsusKamboj93",
+	"IntegratedSecurity": "False"
+}
