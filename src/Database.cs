@@ -263,7 +263,10 @@ namespace OpenDatabase
 		{
 			try
 			{
-				Database.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
+				if (Database.DefaultSqlConnection == null) 
+					Database.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
+				
+				Database.DefaultSqlConnection.Open();
 			}
 			catch (Exception e)
 			{
