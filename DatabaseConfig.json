@@ -2,6 +2,6 @@
 	"HostName": "localhost",
 	"DatabaseName": "testdb",
 	"UserID": "SA",
-	"Password": "tecsusKamboj93",
+	"Password": "",
 	"IntegratedSecurity": "False"
 }

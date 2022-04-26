@@ -56,6 +56,7 @@ namespace OpenDatabase
 
 			try
 			{
+
 				this.UserID = configHash["UserID"].ToString();
 				this.Password = configHash["Password"].ToString();
 				this.HostName = configHash["HostName"].ToString();
@@ -272,6 +273,18 @@ namespace OpenDatabase
 			return Database.DefaultSqlConnection;			
 		}
 
+		public static void Disconnect()
+		{
+			try
+			{
+				Database.DefaultSqlConnection.Close();
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+		}
+			
 		///	<summary>
 		/// Excecutes a query in the DefaultSqlConnection	
 		///	</summary>
@@ -280,12 +293,10 @@ namespace OpenDatabase
 		public static bool ExecuteQuery(string query)
 		{
 			SqlCommand command = new SqlCommand(query, Database.DefaultSqlConnection);
-			
-			Database.DefaultSqlConnection.Open();
-			
+				
+			Database.Connect();	
 			command.ExecuteNonQuery();
-
-			Database.DefaultSqlConnection.Close();
+			Database.Disconnect();
 
 			return true;
 		}
@@ -343,7 +354,7 @@ namespace OpenDatabase
 				
 			command = new SqlCommand(query, Database.DefaultSqlConnection);
 
-			Database.DefaultSqlConnection.Open();			
+			Database.Connect();			
 			
 			dataReader = command.ExecuteReader();
 			
@@ -351,6 +362,7 @@ namespace OpenDatabase
 				records.Push(new Record(Database.GetFieldNames(dataReader), Database.GetValueNames(dataReader)));
 			
 			dataReader.Close();
+			Database.Disconnect();
 
 			return records.ToArray();
 		}
@@ -402,7 +414,7 @@ namespace OpenDatabase
 
 			Database.Connect();
 			Database.ExecuteQuery(query);
-			
+						
 			return true;	
 		}
 			
