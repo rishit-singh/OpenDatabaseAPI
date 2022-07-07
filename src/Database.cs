@@ -250,37 +250,38 @@ namespace OpenDatabase
 	{
 		public static string DefaultDatabaseConfigurationFile = "DatabaseConfig.json";
 
-		public static DatabaseConfiguration DefaultDatabaseConfiguration = new DatabaseConfiguration(Database.DefaultDatabaseConfigurationFile);	//	DB config based on the provided config files
-		public static SqlConnection DefaultSqlConnection;	//	Global default SqlConnection based on DefaultDatabaseConfiguration
-	
+		public DatabaseConfiguration DefaultDatabaseConfiguration;	//	DB config based on the provided config files
 
+		public SqlConnection DefaultSqlConnection;	//	Global default SqlConnection based on DefaultDatabaseConfiguration
+
+		///
 		/// <summary>
 		/// Creates a connection to the specified database.
 		/// </summary>
 		/// <param name="dbname"> database name </param>
 		/// <returns> SqlConnection instance storing the connection value. </returns>
-		public static SqlConnection Connect()
+		public SqlConnection Connect()
 		{
 			try
 			{
-				if (Database.DefaultSqlConnection == null) 
-					Database.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
-				
-				Database.DefaultSqlConnection.Open();
+				if (this.DefaultSqlConnection == null)
+					this.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
+
+				this.DefaultSqlConnection.Open();
 			}
 			catch (Exception e)
 			{
 				Logger.Log($"SQL Sever connection error: {e.Message}.");
 			}
 		
-			return Database.DefaultSqlConnection;			
+			return this.DefaultSqlConnection;
 		}
 
-		public static void Disconnect()
+		public void Disconnect()
 		{
 			try
 			{
-				Database.DefaultSqlConnection.Close();
+				this.DefaultSqlConnection.Close();
 			}
 			catch (Exception e)
 			{
@@ -293,13 +294,13 @@ namespace OpenDatabase
 		///	</summary>
 		///	<param name="query"> Query string. </param>
 		///	<returns> Execution state bool. </returns>
-		public static bool ExecuteQuery(string query)
+		public bool ExecuteQuery(string query)
 		{
-			SqlCommand command = new SqlCommand(query, Database.DefaultSqlConnection);
+			SqlCommand command = new SqlCommand(query, this.DefaultSqlConnection);
 				
-			Database.Connect();	
+			this.Connect();
 			command.ExecuteNonQuery();
-			Database.Disconnect();
+			this.Disconnect();
 
 			return true;
 		}
@@ -309,7 +310,7 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="record"> IDataRecord instance. </param>
 		/// <returns> Array of fieldnames. </returns>
-		private static string[] GetFieldNames(IDataRecord record)		
+		private string[] GetFieldNames(IDataRecord record)
 		{
 			Stack<string> fieldStack = new Stack<string>();
 			
@@ -326,7 +327,7 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="record"> IDataRecord instance. </param>
 		/// <returns> Array of fieldnames. </returns>
-		private static object[] GetValueNames(IDataRecord record)		
+		private object[] GetValueNames(IDataRecord record)
 		{
 			Stack<object> fieldStack = new Stack<object>();
 			
@@ -343,7 +344,7 @@ namespace OpenDatabase
 		///	</summary>
 		///	<param name="query"> SQL Query. </param>
 		///	<returns> Hashtable containing the fetched data. </returns>
-		public static Record[] FetchQueryData(string query)
+		public Record[] FetchQueryData(string query)
 		{
 			Stack<string> Fields = new Stack<string>();
 			
@@ -355,17 +356,17 @@ namespace OpenDatabase
 
 			SqlDataReader dataReader = null;
 				
-			command = new SqlCommand(query, Database.DefaultSqlConnection);
+			command = new SqlCommand(query, this.DefaultSqlConnection);
 
-			Database.Connect();			
+			this.Connect();
 			
 			dataReader = command.ExecuteReader();
 			
 			while (dataReader.Read())
-				records.Push(new Record(Database.GetFieldNames(dataReader), Database.GetValueNames(dataReader)));
+				records.Push(new Record(this.GetFieldNames(dataReader), this.GetValueNames(dataReader)));
 			
 			dataReader.Close();
-			Database.Disconnect();
+			this.Disconnect();
 
 			return records.ToArray();
 		}
@@ -375,9 +376,9 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="recordHashtable"> Hashtable storing the record value. </param>
 		/// <returns> Execution state. </returns>
-		public static bool InsertRecord(Hashtable recordHashtable, string tableName)
+		public bool InsertRecord(Hashtable recordHashtable, string tableName)
 		{
-			Database.ExecuteQuery(QueryBuilder.GetInsertQuery(tableName, recordHashtable));
+			this.ExecuteQuery(QueryBuilder.GetInsertQuery(tableName, recordHashtable));
 
 			return true;
 		}
@@ -387,11 +388,11 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="record"> Record to be inserted </param>
 		/// <returns> Execution state. </returns>
-		public static bool InsertRecord(Record record, string tableName)
+		public bool InsertRecord(Record record, string tableName)
 		{
 			try
 			{
-				Database.ExecuteQuery(QueryBuilder.GetInsertQuery(tableName, record));
+				this.ExecuteQuery(QueryBuilder.GetInsertQuery(tableName, record));
 			}
 			catch (SqlException)
 			{
@@ -404,26 +405,32 @@ namespace OpenDatabase
 		}
 
 		/// <summary>
-		/// 
+		/// Replaces the database record with the provided ID with the provided record.
 		/// </summary>
-		/// <param name=""></param>
-		/// <param name=""></param>
-		/// <param name=""></param>
-		public static bool UpdateRecord(string ID, Record record, string tableName)
+		/// <param name="ID"> Record ID. </param>
+		/// <param name="record"> Record to be updated. </param>
+		/// <param name="tableName"> Table name. </param>
+		public bool UpdateRecord(string ID, Record record, string tableName)
 		{
 			string query = $"UPDATE {tableName} {QueryBuilder.GetSetString(record)} WHERE ID='{ID}';";
 
 			Logger.ConsoleLog(query);
 
-			Database.Connect();
-			Database.ExecuteQuery(query);
+			this.Connect();
+			this.ExecuteQuery(query);
 						
 			return true;	
 		}
 			
-		public static int GetFieldCount(string tableName)
+		public int GetFieldCount(string tableName)
 		{
-			return Convert.ToInt32(Database.FetchQueryData($"SELECT COUNT(*) FROM {tableName};")[0].Values[0]);
-		} 
+			return Convert.ToInt32(this.FetchQueryData($"SELECT COUNT(*) FROM {tableName};")[0].Values[0]);
+		}
+
+		public Database()
+		{
+			this.DefaultDatabaseConfiguration = new DatabaseConfiguration(Database.DefaultDatabaseConfigurationFile);
+			this.DefaultSqlConnection = new SqlConnection(Database.DefaultDatabaseConfiguration.ConnectionString);
+		}
 	}
 }

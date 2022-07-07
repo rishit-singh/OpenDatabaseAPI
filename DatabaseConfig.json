@@ -1,7 +1,0 @@
-{
-	"HostName": "localhost",
-	"DatabaseName": "testdb",
-	"UserID": "SA",
-	"Password": "",
-	"IntegratedSecurity": "False"
-}
