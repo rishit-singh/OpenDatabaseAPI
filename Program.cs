@@ -11,15 +11,15 @@ namespace OpenDatabase.Test
     {
         public static void Main()
         {
-
             new Thread(() => {
                 Database db = new Database();
                 Console.WriteLine(JsonConvert.SerializeObject(db.FetchQueryData("SELECT * FROM users;")));
             }).Start();
-
-            new Thread(() => {
+            
+			new Thread(() => {
                 Database db = new Database();
 
+                Console.WriteLine(JsonConvert.SerializeObject(db.FetchQueryData("SELECT * FROM users;")));
                 Console.WriteLine(JsonConvert.SerializeObject(db.FetchQueryData("SELECT * FROM users;")));
             }).Start();
         }
