@@ -4,24 +4,20 @@ using System.Threading;
 using Newtonsoft.Json;
 
 using OpenDatabase;
+using OpenDatabaseAPI;
 
 namespace OpenDatabase.Test
 {
     public class Program
     {
-        public static void Main()
+        public static void Main(string[] args)
         {
-            new Thread(() => {
-                Database db = new Database();
-                Console.WriteLine(JsonConvert.SerializeObject(db.FetchQueryData("SELECT * FROM users;")));
-            }).Start();
-            
-			new Thread(() => {
-                Database db = new Database();
+            PostGRESDatabase database = new PostGRESDatabase(DatabaseConfiguration.LoadFromFile(DatabaseConfiguration.DefaultDatabaseConfigFile));
 
-                Console.WriteLine(JsonConvert.SerializeObject(db.FetchQueryData("SELECT * FROM users;")));
-                Console.WriteLine(JsonConvert.SerializeObject(db.FetchQueryData("SELECT * FROM users;")));
-            }).Start();
+            database.Connect();
+            Console.WriteLine(JsonConvert.SerializeObject(database.FetchQueryData("SELECT * FROM test;")));
+            database.Disconnect();
+            
         }
     }
 }

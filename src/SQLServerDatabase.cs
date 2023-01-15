@@ -3,96 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 using OpenDatabase.Logs;
 using OpenDatabase.Json;
+using OpenDatabaseAPI;
 
 namespace OpenDatabase
 {
-	///<summary>
-	///	Stores the Database configuration to be used by the SQL server.
-	///</summary>
-	public struct DatabaseConfiguration
-	{
-		public string HostName;	//	Name of the database host server
-
-		public string DatabaseName;	//	Name of the DB to connect to.
-
-		public string UserID;	//	Database user's ID.
-
-		public string Password;	//	Database users's password.
-
-		public bool IntegratedSecurity;		//	Integrated security toggle
-
-		public readonly string ConnectionString { get { return this.GetConnectionString(); } }	//	SQL connection string.
-
-		public bool IsValid()
-		{
-			return (this.HostName != null &&
-					this.DatabaseName != null &&
-					this.UserID != null &&
-					this.Password != null);	
-		}
-
-		public string GetConnectionString()
-		{	
-			string integratedSecurity = (this.IntegratedSecurity) ? "True" : "False";
-
-			return $"Server={this.HostName};Database={this.DatabaseName};User Id={this.UserID};Password={this.Password}";
-		}
-
-		public DatabaseConfiguration(string hostName, string databaseName, string userID, string password)
-		{
-			this.UserID = userID;
-			this.Password = password;
-			this.HostName = hostName;
-			this.DatabaseName = databaseName;
-			this.IntegratedSecurity = true;
-		}
-
-		public DatabaseConfiguration(string hostName, string databaseName, string userID, string password, bool integratedSecurity)
-		{
-			this.UserID = userID;
-			this.Password = password;
-			this.HostName = hostName;
-			this.DatabaseName = databaseName;
-			this.IntegratedSecurity = integratedSecurity;
-		}
-
-		public DatabaseConfiguration(string configFilePath)
-		{
-			Hashtable configHash = Json.Json.GetJsonHashtable(configFilePath);
-
-			try
-			{
-				this.UserID = configHash["UserID"].ToString();
-				this.Password = configHash["Password"].ToString();
-				this.HostName = configHash["HostName"].ToString();
-				this.DatabaseName = configHash["DatabaseName"].ToString();
-				this.IntegratedSecurity = (configHash["IntegratedSecurity"].ToString() == "True") ? true : false;
-			}
-			catch (NullReferenceException)
-			{
-				Logger.Log($"Invalid configuration provided.");
-
-				this.UserID = null;
-				this.Password = null;
-				this.HostName = null;
-				this.DatabaseName = null;
-				this.IntegratedSecurity = true;
-			}
-		}
-
-		public DatabaseConfiguration(Hashtable configHash)
-		{
-			this.UserID = configHash["UserID"].ToString();
-			this.Password = configHash["Password"].ToString();
-			this.HostName = configHash["HostName"].ToString();
-			this.DatabaseName = configHash["DatabaseName"].ToString();
-			this.IntegratedSecurity = (configHash["IntegratedSecurity"].ToString() == "True") ? true : false;
-		}
-	}
-
-
 	public struct ComparisionPair<T>
 	{	
 		T Left,
@@ -221,12 +140,11 @@ namespace OpenDatabase
 			
 			int size = record.Keys.Length;
 	
-			for (int x = 0; x < size; x++)
-				if (x == (size - 1))
-					setString += $"{record.Keys[x]}={QueryBuilder.GetValueString(record.Values[x])}";
-				else
-					setString += $"{record.Keys[x]}={QueryBuilder.GetValueString(record.Values[x])}, ";
+			for (int x = 0; x < size - 1; x++)
+				setString += $"{record.Keys[x]}={QueryBuilder.GetValueString(record.Values[x])}, ";
 
+			setString += $"{record.Keys[size - 1]}={QueryBuilder.GetValueString(record.Values[size - 1])}";
+			
 			return setString;
 		}
 
@@ -253,7 +171,7 @@ namespace OpenDatabase
 	/// <summary>
 	/// Handles database connectivity, data fetching and editing.		
 	/// </summary>
-	public class Database	
+	public class SQLServerDatabase : Database	
 	{
 		public static string DefaultDatabaseConfigurationFile = "DatabaseConfig.json";
 
@@ -261,13 +179,12 @@ namespace OpenDatabase
 
 		public SqlConnection DefaultSqlConnection;	//	Global default SqlConnection based on DefaultDatabaseConfiguration
 
-		///
 		/// <summary>
 		/// Creates a connection to the specified database.
 		/// </summary>
 		/// <param name="dbname"> database name </param>
 		/// <returns> SqlConnection instance storing the connection value. </returns>
-		public SqlConnection Connect()
+		public override bool  Connect()
 		{
 			try
 			{
@@ -282,12 +199,14 @@ namespace OpenDatabase
 			catch (Exception e)
 			{
 				Logger.Log($"SQL Sever connection error: {e.Message}");
+
+				return false;
 			}
-		
-			return this.DefaultSqlConnection;
+
+			return true;
 		}
 
-		public void Disconnect()
+		public override bool Disconnect()
 		{
 			try
 			{
@@ -296,15 +215,15 @@ namespace OpenDatabase
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
+
+				return false;
 			}
+
+			return true;
 		}
 
-		///	<summary>
-		/// Excecutes a query in the DefaultSqlConnection	
-		///	</summary>
-		///	<param name="query"> Query string. </param>
-		///	<returns> Execution state bool. </returns>
-		public bool ExecuteQuery(string query)
+
+		public override bool ExecuteQuery(string query)
 		{
 			SqlCommand command = new SqlCommand(query, this.DefaultSqlConnection);
 				
@@ -320,7 +239,7 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="record"> IDataRecord instance. </param>
 		/// <returns> Array of fieldnames. </returns>
-		private string[] GetFieldNames(IDataRecord record)
+		private static string[] GetFieldNames(IDataRecord record)
 		{
 			Stack<string> fieldStack = new Stack<string>();
 			
@@ -337,7 +256,7 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="record"> IDataRecord instance. </param>
 		/// <returns> Array of fieldnames. </returns>
-		private object[] GetValueNames(IDataRecord record)
+		private static object[] GetValueNames(IDataRecord record)
 		{
 			Stack<object> fieldStack = new Stack<object>();
 			
@@ -371,7 +290,7 @@ namespace OpenDatabase
 				dataReader = command.ExecuteReader();
 
 				while (dataReader.Read())
-					records.Push(new Record(this.GetFieldNames(dataReader), this.GetValueNames(dataReader)));
+					records.Push(new Record(SQLServerDatabase.GetFieldNames(dataReader), SQLServerDatabase.GetValueNames(dataReader)));
 
 				dataReader.Close();
 				this.Disconnect();
@@ -401,7 +320,7 @@ namespace OpenDatabase
 		/// </summary>
 		/// <param name="record"> Record to be inserted </param>
 		/// <returns> Execution state. </returns>
-		public bool InsertRecord(Record record, string tableName)
+		public override bool InsertRecord(Record record, string tableName)
 		{
 			try
 			{
@@ -423,7 +342,7 @@ namespace OpenDatabase
 		/// <param name="ID"> Record ID. </param>
 		/// <param name="record"> Record to be updated. </param>
 		/// <param name="tableName"> Table name. </param>
-		public bool UpdateRecord(string ID, Record record, string tableName)
+		public override bool UpdateRecord(string ID, Record record, string tableName)
 		{
 			string query = $"UPDATE {tableName} {QueryBuilder.GetSetString(record)} WHERE ID='{ID}';";
 
@@ -440,15 +359,13 @@ namespace OpenDatabase
 			return Convert.ToInt32(this.FetchQueryData($"SELECT COUNT(*) FROM {tableName};")[0].Values[0]);
 		}
 
-		public Database()
+		public SQLServerDatabase(DatabaseConfiguration databaseConfiguration) : base(databaseConfiguration)
 		{
-			this.DefaultDatabaseConfiguration = new DatabaseConfiguration(Database.DefaultDatabaseConfigurationFile);
 			this.DefaultSqlConnection = new SqlConnection(this.DefaultDatabaseConfiguration.ConnectionString);
 		}
 		
-		public Database(string configFilePath)
+		public SQLServerDatabase(string configFilePath) : base(DatabaseConfiguration.LoadFromFile(configFilePath))
 		{
-			this.DefaultDatabaseConfiguration = new DatabaseConfiguration(configFilePath);
 			this.DefaultSqlConnection = new SqlConnection(this.DefaultDatabaseConfiguration.ConnectionString);
 		}
 	}
