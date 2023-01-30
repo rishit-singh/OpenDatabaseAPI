@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 namespace OpenDatabase
 {
@@ -29,11 +30,14 @@ namespace OpenDatabase
 
 		public Operator ComparisionOperator;
 		
-		protected char OperatorChar; 
+		protected string OperatorChar; 
 		
-		public string ToString(string operators)
+		public override string ToString()
 		{
-			return $"{Convert.ToString(this.Left)}{operators}{Convert.ToString(this.Right)}";
+			string quote = (typeof(T) == typeof(string)) ? "\'" : null;
+				
+				
+			return $"{quote}{Convert.ToString(this.Left)}{quote}{this.OperatorChar}{quote}{Convert.ToString(this.Right)}{quote}";
 		}
 
 		public ComparisonPair(T left, T right, Operator comparisonOp)
@@ -41,6 +45,7 @@ namespace OpenDatabase
 			this.ComparisionOperator = comparisonOp;
 			this.Left = left;
 			this.Right = right;
+			this.OperatorChar = OperatorChars[(int)this.ComparisionOperator];
 		}
 	}
 
@@ -66,21 +71,29 @@ namespace OpenDatabase
 		{
 			string conditionString = null;
 			
-			for (int x = 0; x < this.Comparisons[0].Count; x++)
-				conditionString += $"{this.Comparisons[0][x].ToString()} AND";
+			for (int x = 0; x < this.Comparisons[0].Count - 1; x++)
+				conditionString += $"{this.Comparisons[0][x].ToString()} AND ";
 		
-			conditionString += $"{this.Comparisons[0][this.Comparisons[0].Count - 1].ToString()} ";
+			if (this.Comparisons[0].Count != 0)
+				conditionString += $"{this.Comparisons[0][this.Comparisons[0].Count - 1].ToString()} ";
 			
-			for (int x = 0; x < this.Comparisons[1].Count; x++)
+			for (int x = 0; x < this.Comparisons[1].Count - 1; x++)
 				conditionString += $"{this.Comparisons[1][x].ToString()} OR";
 		
-			conditionString += $"{this.Comparisons[1][this.Comparisons[1].Count - 1].ToString()} ";
+			if (this.Comparisons[1].Count != 0) 
+				conditionString += $"OR {this.Comparisons[1][this.Comparisons[1].Count - 1].ToString()} ";
+			
 			return conditionString;
 		}
+		
 
 		public Condition()
 		{
-			this.Comparisons = new List<ComparisonPair<T>>[2];
+			this.Comparisons = new List<ComparisonPair<T>>[2]
+			{
+				new List<ComparisonPair<T>>(),
+				new List<ComparisonPair<T>>()
+			};
 		}
 	}
 
@@ -143,7 +156,6 @@ namespace OpenDatabase
 			
 			for (int x = 0; x < size; x++)
 				tuple += $"{record.Keys[x]}={QueryBuilder.GetValueString(record.Values[x])}, ";
-			
 			
 			tuple += $"{record.Keys[size]}={QueryBuilder.GetValueString(record.Values[size])})";
 
