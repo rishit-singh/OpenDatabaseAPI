@@ -168,6 +168,11 @@ namespace OpenDatabase
             return true;
         }
 
+        public virtual bool UpdateRecord(object id, Record record, string table)
+        {
+	        return true;
+        }
+
         public virtual Record[] FetchQueryData(string query, string tableName)
         {
             return null;

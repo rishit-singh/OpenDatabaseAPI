@@ -191,7 +191,7 @@ namespace OpenDatabase
 		/// <param name="tableName"> Table name. </param>
 		public override bool UpdateRecord(string ID, Record record, string tableName)
 		{
-			string query = $"UPDATE {tableName} {QueryBuilder.GetSetString(record)} WHERE ID='{ID}';";
+			string query = $"UPDATE {tableName} SET {QueryBuilder.GetSetString(record)} WHERE ID='{ID}';";
 
 			Logger.ConsoleLog(query);
 
@@ -200,7 +200,21 @@ namespace OpenDatabase
 						
 			return true;	
 		}
+
+		public override bool UpdateRecord(object id, Record record, string table)
+		{
+			try
+			{
+				this.ExecuteQuery(QueryBuilder.GetUpdateQuery(id, table, record));
+			}
+			catch (Exception e)
+			{
+				return false; 
+			}
 			
+			return true; 
+		}
+
 		public int GetFieldCount(string tableName)
 		{
 			return Convert.ToInt32(this.FetchQueryData($"SELECT COUNT(*) FROM {tableName};")[0].Values[0]);

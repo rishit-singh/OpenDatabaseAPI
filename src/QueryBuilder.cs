@@ -227,10 +227,17 @@ namespace OpenDatabase
 		{
 			return $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {QueryBuilder.GetValueFunctionString(data)};";
 		}
-
-		public static string GetUpdateQuery(string tableName, Record data)
+		
+		/// <summary>
+		/// Generates a query for updating the given records in the table.
+		/// </summary>
+		/// <param name="id">Primary key value.</param>
+		/// <param name="tableName">Table name. </param>
+		/// <param name="data"> Record values to be updated. </param>
+		/// <returns> Generated query. </returns>
+		public static string GetUpdateQuery(object id, string tableName, Record data) 
 		{
-			return $"UPDATE {tableName} {QueryBuilder.GetSetString(data)}";
+			return $"UPDATE {tableName} {QueryBuilder.GetSetString(data)} WHERE ID={QueryBuilder.GetValueString(id)}";
 		}
 	}
 
