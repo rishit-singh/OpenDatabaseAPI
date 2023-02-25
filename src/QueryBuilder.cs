@@ -143,6 +143,8 @@ namespace OpenDatabase
 			 else if (valueType == typeof(bool))
 				valueString = (value.Equals(true)) ? "TRUE" : "FALSE";
 			 
+			 else if (valueType == typeof(double))
+				 valueString = value.ToString();
 			 else;
 
 			 return valueString;
