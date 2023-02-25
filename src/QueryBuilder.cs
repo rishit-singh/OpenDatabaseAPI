@@ -239,7 +239,7 @@ namespace OpenDatabase
 
 		public static string GetInsertQuery(string tableName, Record data, bool specify = false)
 		{
-			return $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {((specify) ? QueryBuilder.GetColumnTuple(data.Keys) : null)}{QueryBuilder.GetValueFunctionString(data)};";
+			return $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {((specify) ? QueryBuilder.GetColumnTuple(data.Keys) : null)} {QueryBuilder.GetValueFunctionString(data)};";
 		}
 		
 		/// <summary>
