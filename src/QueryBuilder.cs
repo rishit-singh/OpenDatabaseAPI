@@ -228,7 +228,7 @@ namespace OpenDatabase
 			return tuple;
 		}
 
-		public static string GetInsertQuery(string tableName, Hashtable data, bool specify)
+		public static string GetInsertQuery(string tableName, Hashtable data)
 		{
 			string queryString = null;
 
