@@ -41,8 +41,13 @@ namespace OpenDatabaseAPI
             }
 
             return true;
-        }
-
+        } 
+        /// <summary>
+        /// Extracts the records from the reader.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
         protected Record[] GetRecordsFromReader(NpgsqlDataReader reader, string[] fields)
         {
             List<Record> recordStack = new List<Record>();
@@ -60,18 +65,18 @@ namespace OpenDatabaseAPI
 
                     Type fieldType = typeof(string);
 
+                    tempRecord.Keys = fields;
+                    
                     for (int x = 0; x < fieldCount; x++)
                     {
-                        tempRecord.Keys[x] = fields[x];
-                        
-                        
                         if ((fieldType = reader.GetFieldType(x)) == typeof(int))
                             tempRecord.Values[x] = reader.GetInt32(x);
+                       
                         else if ((fieldType = reader.GetFieldType(x)) == typeof(double))
                             tempRecord.Values[x] = reader.GetDouble(x);
+                        
                         else
                             tempRecord.Values[x] = reader.GetString(x);
-                            
                     }
 
                     recordStack.Add(tempRecord);
@@ -219,6 +224,7 @@ namespace OpenDatabaseAPI
 
             return fetchedRecords;
         }
+        
         public PostGRESDatabase(DatabaseConfiguration configuration) : base(configuration)
         {
         }
