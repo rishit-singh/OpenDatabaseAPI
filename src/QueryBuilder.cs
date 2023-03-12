@@ -130,6 +130,9 @@ namespace OpenDatabase
 		{
 			string valueString = null;
 	
+			if (value == null)
+				return null;
+		
 			Type valueType = value.GetType();
 			
 			 if (valueType == typeof(int))
