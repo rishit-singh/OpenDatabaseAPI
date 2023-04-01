@@ -44,6 +44,7 @@ namespace OpenDatabaseAPI
         } 
         /// <summary>
         /// Extracts the records from the reader.
+        
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="fields"></param>
@@ -184,7 +185,7 @@ namespace OpenDatabaseAPI
             {
                 string query;
                 this.ExecuteQuery(query = QueryBuilder.GetInsertQuery(table, record, specify)); 
-                // Console.WriteLine(query);
+                Console.WriteLine(query);
             }
             catch (Exception e)
             {
