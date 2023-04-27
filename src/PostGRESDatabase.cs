@@ -224,7 +224,12 @@ namespace OpenDatabaseAPI
 
             return fetchedRecords;
         }
-        
+
+        public override bool UpdateRecord(Record condition, Record record, string table)
+        {
+            return this.ExecuteQuery(QueryBuilder.GetUpdateQuery(condition, record, table));
+        }
+
         public PostGRESDatabase(DatabaseConfiguration configuration) : base(configuration)
         {
         }

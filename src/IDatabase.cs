@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using OpenDatabase.Logs;
@@ -166,6 +167,11 @@ namespace OpenDatabase
         public virtual bool InsertRecord(Record record, string table, bool specify)
         {
             return true;
+        }
+
+        public virtual bool UpdateRecord(Record condition, Record record, string table)
+        {
+	        return true;
         }
 
         public virtual bool UpdateRecord(string id, Record record, string table)

@@ -354,6 +354,17 @@ namespace OpenDatabase
 		{
 			return $"UPDATE {tableName} {QueryBuilder.GetSetString(data)} WHERE ID={QueryBuilder.GetValueString(id)}";
 		}
+
+
+		public static string GetUpdateQuery(Record condition, Record record, string table)
+		{
+            KeyPairCondition cond = new KeyPairCondition();
+
+            for (int x = 0; x < condition.Keys.Length; x++)
+                cond.And(new KeyComparisonPair(condition.Keys[x], condition.Values[x], Operator.Equal));
+
+			return $"UPDATE {table} {QueryBuilder.GetSetString(record)} WHERE {cond.ToString()};";
+		}
 	}
 
 }
