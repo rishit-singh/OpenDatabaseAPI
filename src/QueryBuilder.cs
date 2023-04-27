@@ -13,7 +13,8 @@ namespace OpenDatabase
 		More,
 		Equal,
 		LessEqual,
-		MoreEqual
+		MoreEqual,
+		Like
 	}
 
 	public class ComparisonPair<T>
@@ -23,7 +24,8 @@ namespace OpenDatabase
 			">",
 			"=",
 			"<=",
-			">"	
+			">",
+			"LIKE"
 		};
 		
 		T Left,
@@ -36,8 +38,7 @@ namespace OpenDatabase
 		public override string ToString()
 		{
 			string quote = (typeof(T) == typeof(string)) ? "\'" : null;
-				
-				
+		
 			return $"{quote}{Convert.ToString(this.Left)}{quote}{this.OperatorChar}{quote}{Convert.ToString(this.Right)}{quote}";
 		}
 
@@ -57,7 +58,8 @@ namespace OpenDatabase
 			">",
 			"=",
 			"<=",
-			">"	
+			">",
+			"LIKE"
 		};
 
 		public string Key;
@@ -70,8 +72,13 @@ namespace OpenDatabase
 		
 		public override string ToString()
 		{
-			string quote = (this.Value.GetType() == typeof(string)) ? "\'" : null;
-				
+			string? quote = (this.Value is string) ? "\'" : null;
+
+			if ((QueryBuilder.IsNumeric(this.Value)) && (ComparisionOperator == Operator.Like))
+			{
+				return $"{$"CAST({this.Key} as TEXT)"} {this.OperatorChar} \'{this.Value}{quote}%\'";
+			}
+
 			return $"{this.Key} {this.OperatorChar} {quote}{this.Value}{quote}";
 		}
 
@@ -210,6 +217,26 @@ namespace OpenDatabase
 			"WHERE"
 		};
 
+		public static bool IsNumeric(object obj)
+		{
+			switch (Type.GetTypeCode(obj.GetType()))
+			{
+				case TypeCode.Byte:
+				case TypeCode.SByte:
+				case TypeCode.UInt16:
+				case TypeCode.UInt32:
+				case TypeCode.UInt64:
+				case TypeCode.Int16:
+				case TypeCode.Int32:
+				case TypeCode.Int64:
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					return true;
+			}
+			return false;
+		}
+
 		public static string GetValueString<T>(T value)
 		{
 			string valueString = null;
@@ -222,10 +249,8 @@ namespace OpenDatabase
 			 if (valueType == typeof(int))
 				valueString = Convert.ToString(value);
 			 else if (valueType == typeof(char))
-			 {
 				 valueString = $"\'{Convert.ToString(value)}\'";
-			 }
-			 
+			
 			 else if (valueType == typeof(string))
 			 {
 				 string converted = Convert.ToString(value), altered = null;
