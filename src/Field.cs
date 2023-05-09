@@ -11,6 +11,7 @@ public enum FieldType
     Bool,
     Int,
     Float,
+    Double,
     Char,
     VarChar
 }
