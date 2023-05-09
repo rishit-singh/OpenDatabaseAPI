@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace OpenDatabaseAPI;
 
@@ -19,7 +21,7 @@ public enum Flag
     PrimaryKey
 }
 
-public struct Field
+public class Field
 {
     public string Name;
     public FieldType Type;
@@ -47,28 +49,46 @@ public struct Field
         this.Flags.Add(flag);
     }
 
-    public override string ToString()
-    { 
-        string size = (this.Size > 0) ? Convert.ToString(this.Size) : "";
-
-        string flagString = null;
-
-        for (int x = 0; x < this.Flags.Count; x++)
-            flagString += $"{Field.FlagStrings[x]}";
-
-        return $"{this.Name} {Field.FieldTypeStrings[(int)this.Type]} {Size} {flagString}";
+    protected void Initialize(Flag[] flags)
+    {
+        for (int x = 0; x < flags.Length; x++)
+            this.Flags.Add(flags[x]);
     }
 
-    public Field(string name, FieldType type, Flag[] flags, int size = 0)
+    protected string GetFlagString()
+    {
+        if (this.Flags.Count == 0)
+            return null;
+        
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        for (int x = 0; x < this.Flags.Count - 1; x++)
+        {
+            stringBuilder.Append(Field.FlagStrings[(int)this.Flags[x]]);
+            stringBuilder.Append(' ');
+        }
+        
+        stringBuilder.Append(Field.FlagStrings[(int)this.Flags[this.Flags.Count - 1]]);
+
+        return stringBuilder.ToString();
+    }
+
+    public override string ToString()
+    {
+        bool hasSize = this.Size > 0;
+      
+        return $"{this.Name} {Field.FieldTypeStrings[(int)this.Type]}{((hasSize) ? '(' : null)}{((hasSize) ? Size : null)}{((hasSize) ? ')' : null)} {this.GetFlagString()}";
+    }
+
+    public Field(string name, FieldType type, Flag[] flags = null, int size = 0)
     {
         this.Name = name;
         this.Type = type;
         this.Size = size;
 
         this.Flags = new List<Flag>();
-
-        for (int x = 0; x < flags.Length; x++)
-            this.Flags.Add(flags[x]);
-        
+    
+        if (flags != null)
+            this.Initialize(flags);
     }
 } 

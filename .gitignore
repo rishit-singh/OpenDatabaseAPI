@@ -2,3 +2,4 @@ bin/
 obj/
 .logs
 DatabaseConfig.json
+Program.cs

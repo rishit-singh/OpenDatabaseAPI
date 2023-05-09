@@ -19,7 +19,7 @@ public class Table
         for (int x = 0; x < end; x++)
             tableString += $"{this.Fields[x].ToString()},\n";
         
-        tableString += $"{this.Fields[end].ToString()})\n";
+        tableString += $"{this.Fields[end].ToString()}\n);\n";
 
         return tableString;
     }
@@ -29,8 +29,11 @@ public class Table
         return $"CREATE TABLE {this.Name}{this.ToString()}";
     }
 
-    public Table(Field[] fields)
+    public Table(string name, Field[] fields)
     {
+        this.Name = name;
+        this.Fields = new List<Field>();
+        
         for (int x = 0; x < fields.Length; x++)
             this.Fields.Add(fields[x]);
     }

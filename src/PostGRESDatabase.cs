@@ -195,7 +195,6 @@ namespace OpenDatabaseAPI
             
             return true;
         }
-
         
         public override Record[] FetchQueryData(string query, string tableName)
         {
