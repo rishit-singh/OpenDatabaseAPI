@@ -57,9 +57,9 @@ namespace OpenDatabaseAPI
             
             try
             {
-                // Console.WriteLine($"Rows:{reader.Rows}");
                 while (reader.Read())
                 {
+                    
                     int fieldCount = reader.FieldCount;
 
                     tempRecord = new Record(new string[fieldCount], new object[fieldCount]);
@@ -67,17 +67,17 @@ namespace OpenDatabaseAPI
                     Type fieldType = typeof(string);
 
                     tempRecord.Keys = fields;
-                    
+
                     for (int x = 0; x < fieldCount; x++)
                     {
                         if ((fieldType = reader.GetFieldType(x)) == typeof(int))
                             tempRecord.Values[x] = reader.GetInt32(x);
-                       
+
                         else if ((fieldType = reader.GetFieldType(x)) == typeof(double))
                             tempRecord.Values[x] = reader.GetDouble(x);
-                        
+
                         else
-                            tempRecord.Values[x] = reader.GetString(x);
+                            tempRecord.Values[x] = (!reader.IsDBNull(x)) ? reader.GetString(x) : null;
                     }
 
                     recordStack.Add(tempRecord);
@@ -208,6 +208,7 @@ namespace OpenDatabaseAPI
             
             try
             {
+                
                 command = new NpgsqlCommand(query, this.Connection);
                 
                 reader = command.ExecuteReader();
