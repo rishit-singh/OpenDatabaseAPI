@@ -59,7 +59,6 @@ namespace OpenDatabaseAPI
             {
                 while (reader.Read())
                 {
-                    
                     int fieldCount = reader.FieldCount;
 
                     tempRecord = new Record(new string[fieldCount], new object[fieldCount]);
@@ -76,6 +75,8 @@ namespace OpenDatabaseAPI
                         else if ((fieldType = reader.GetFieldType(x)) == typeof(double))
                             tempRecord.Values[x] = reader.GetDouble(x);
 
+                        else if ((fieldType = reader.GetFieldType(x)) == typeof(bool))
+                            tempRecord.Values[x] = reader.GetBoolean(x);
                         else
                             tempRecord.Values[x] = (!reader.IsDBNull(x)) ? reader.GetString(x) : null;
                     }
