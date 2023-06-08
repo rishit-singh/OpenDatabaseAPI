@@ -194,6 +194,11 @@ namespace OpenDatabase
             return true;
         }
 
+        public virtual bool TableExists(string tableName)
+        {
+	        return false;
+        }
+
         public Database(DatabaseConfiguration configuration)
         {
             this.Configuration = configuration;

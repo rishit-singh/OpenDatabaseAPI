@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<!--<OutputType>Exe</OutputType>-->
-		<OutputType>Library</OutputType>
+		<OutputType>Exe</OutputType>
+		<!--<OutputType>Library</OutputType>-->
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>

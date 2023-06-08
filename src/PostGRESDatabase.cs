@@ -227,6 +227,16 @@ namespace OpenDatabaseAPI
             return fetchedRecords;
         }
 
+        public override bool TableExists(string table)
+        {
+            return (bool)this.FetchQueryData(@"SELECT EXISTS (
+                                    SELECT FROM 
+                                    pg_tables
+                                    WHERE 
+                                    schemaname =  'public' AND 
+                                    tablename  = 'courses');", "Courses")[0].Values[0];
+        }
+
         public override bool UpdateRecord(Record condition, Record record, string table)
         {
             return this.ExecuteQuery(QueryBuilder.GetUpdateQuery(condition, record, table));
