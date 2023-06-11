@@ -5,6 +5,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using OpenDatabase.Logs;
+using OpenDatabaseAPI;
 
 namespace OpenDatabase
 {
@@ -30,13 +31,15 @@ namespace OpenDatabase
 
 		public bool IntegratedSecurity;		//	Integrated security toggle
 
+		public int Port;
+		
 		public SQLClientType Client;
 		
         public static string DefaultDatabaseConfigFile = "DatabaseConfig.json"; 
 		public string ConnectionString { get { return this.GetConnectionString(this.Client); } set { }  }	//	SQL connection string.
 
 		protected static string[] ConnectionStrings = new string[] {
-			"Host={0};Database={1};UserName={2};Password={3};",
+			"Host={0};Database={1};UserName={2};Password={3};Port={4}",
 			"Server={0};Database={1}; User Id={2};Password={3};"
 		};
 
@@ -60,12 +63,16 @@ namespace OpenDatabase
 			return (this.HostName != null &&
 					this.DatabaseName != null &&
 					this.UserID != null &&
-					this.Password != null);	
-		}
+					this.Password != null &&
+					this.Client != SQLClientType.Unknown);	
+		} 
 
 		public string GetConnectionString(SQLClientType type)
 		{	
 			string integratedSecurity = (this.IntegratedSecurity) ? "True" : "False";
+			
+			if (type == SQLClientType.PostGRES && this.Port != 0)
+				return String.Format(DatabaseConfiguration.ConnectionStrings[(int)type], this.HostName, this.DatabaseName, this.UserID, this.Password, this.Port);
 
 			return String.Format(DatabaseConfiguration.ConnectionStrings[(int)type], this.HostName, this.DatabaseName, this.UserID, this.Password);
 		}
@@ -86,24 +93,16 @@ namespace OpenDatabase
 			return configuration;
 		}
 
-		public DatabaseConfiguration(string hostName, string databaseName, string userID, string password)
+		public DatabaseConfiguration(string hostName, string databaseName, string userID, string password, SQLClientType client, int port)
 		{
 			this.UserID = userID;
-			this.Password = password;
+			this. Password = password;
 			this.HostName = hostName;
 			this.DatabaseName = databaseName;
 			this.IntegratedSecurity = true;
+			this.Port = port;
 		}
 
-		public DatabaseConfiguration(string hostName, string databaseName, string userID, string password, SQLClientType type, bool integratedSecurity)
-		{
-			this.UserID = userID;
-			this.Password = password;
-			this.HostName = hostName;
-			this.DatabaseName = databaseName;
-			this.Client = type;
-			this.IntegratedSecurity = integratedSecurity;
-		}
 
 		public DatabaseConfiguration(string configFilePath)
 		{
@@ -137,11 +136,16 @@ namespace OpenDatabase
 			this.Password = configHash["Password"].ToString();
 			this.HostName = configHash["HostName"].ToString();
 			this.DatabaseName = configHash["DatabaseName"].ToString();
+			
 			if (configHash["IntegratedSecurity"] != null)
 				this.IntegratedSecurity = (configHash["IntegratedSecurity"].ToString() == "True") ? true : false;
 			else
 				this.IntegratedSecurity = false;
-		}
+
+			if (configHash.ContainsKey("Port"))
+				this.Port = (int)configHash["Port"];
+		} 
+		
 	}
 
 
