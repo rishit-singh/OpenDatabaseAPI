@@ -246,7 +246,7 @@ namespace OpenDatabase
 
 			Type valueType = value.GetType();
 			
-			 if (valueType == typeof(int))
+			 if (valueType == typeof(int) || valueType == typeof(long))
 				valueString = Convert.ToString(value);
 			 else if (valueType == typeof(char))
 				 valueString = $"\'{Convert.ToString(value)}\'";
