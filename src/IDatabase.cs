@@ -71,8 +71,12 @@ namespace OpenDatabase
 		{	
 			string integratedSecurity = (this.IntegratedSecurity) ? "True" : "False";
 			
-			if (type == SQLClientType.PostGRES && this.Port != 0)
-				return String.Format(DatabaseConfiguration.ConnectionStrings[(int)type], this.HostName, this.DatabaseName, this.UserID, this.Password, this.Port);
+			if (type == SQLClientType.PostGRES)
+				if (this.Port != 5432)
+					return String.Format(DatabaseConfiguration.ConnectionStrings[(int)type], this.HostName, this.DatabaseName, this.UserID, this.Password, this.Port);
+				else
+					return String.Format(DatabaseConfiguration.ConnectionStrings[(int)type], this.HostName, this.DatabaseName, this.UserID, this.Password, 5432);
+				
 
 			return String.Format(DatabaseConfiguration.ConnectionStrings[(int)type], this.HostName, this.DatabaseName, this.UserID, this.Password);
 		}
