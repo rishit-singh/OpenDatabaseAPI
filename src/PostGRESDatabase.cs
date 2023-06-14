@@ -229,7 +229,13 @@ namespace OpenDatabaseAPI
 
         public override bool TableExists(string table)
         {
-            return (bool)this.FetchQueryData($"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname =  'public' AND tablename  = '{table}');", table)[0].Values[0];
+            Record[] record =
+                this.FetchQueryData(
+                    $"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname =  'public' AND tablename  = '{table}');",
+                    table); 
+            Console.WriteLine($"Size: {record.Length}");
+            
+            return (bool)record[0].Values[0];
         }
 
         public override bool UpdateRecord(Record condition, Record record, string table)
