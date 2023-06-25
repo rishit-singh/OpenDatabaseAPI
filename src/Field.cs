@@ -19,7 +19,8 @@ public enum FieldType
 public enum Flag
 {
     NotNull,
-    PrimaryKey
+    PrimaryKey,
+    AlternateKey
 }
 
 public class Field
@@ -42,7 +43,8 @@ public class Field
 
     public static string[] FlagStrings = new string[] {
         "NOT NULL",
-        "PRIMARY KEY"
+        "PRIMARY KEY",
+        "UNIQUE"
     };
 
     public void AddFlag(Flag flag)
